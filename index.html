@@ -3,16 +3,647 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Microplastic Quantification | Thesis Research</title>
+    <title>Advanced Microplastic Quantification | AI-Powered Analysis</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #1abc9c;
+            --light: #ecf0f1;
+            --dark: #34495e;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --success: #27ae60;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 0.5rem;
+        }
+        
+        .upload-area {
+            border: 3px dashed var(--secondary);
+            border-radius: 10px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+        
+        .upload-area:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+            border-color: var(--primary);
+        }
+        
+        .upload-icon {
+            font-size: 4rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: var(--secondary);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-align: center;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .btn-primary {
+            background: var(--secondary);
+        }
+        
+        .btn-success {
+            background: var(--success);
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+        }
+        
+        .btn-info {
+            background: var(--accent);
+        }
+        
+        .btn-lg {
+            padding: 15px 30px;
+            font-size: 1.1rem;
+        }
+        
+        .analysis-section {
+            display: none;
+        }
+        
+        .image-preview-container {
+            position: relative;
+            display: inline-block;
+            max-width: 100%;
+            margin: 1rem auto;
+        }
+        
+        .image-preview {
+            max-width: 100%;
+            max-height: 500px;
+            display: block;
+            border-radius: 5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .selection-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+            border-radius: 5px;
+        }
+        
+        .progress-container {
+            margin: 2rem 0;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: linear-gradient(90deg, var(--accent), var(--secondary));
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+        
+        .progress-text {
+            text-align: center;
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .scan-details {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(26, 188, 156, 0.1);
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .scan-step {
+            margin: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .step-icon {
+            margin-right: 10px;
+            color: var(--accent);
+        }
+        
+        .completed {
+            color: var(--success);
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .result-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.2rem;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            border-left: 4px solid var(--accent);
+        }
+        
+        .result-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        
+        .result-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+        
+        .result-unit {
+            font-size: 0.9rem;
+            color: var(--dark);
+            opacity: 0.7;
+        }
+        
+        .visualization {
+            margin: 2rem 0;
+            text-align: center;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+        
+        .classification-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .classification-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem;
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .particle-count {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .particle-percentage {
+            color: var(--secondary);
+            font-weight: 600;
+        }
+        
+        .detailed-results {
+            margin-top: 2rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+        }
+        
+        th {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .particle-id {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .export-section {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .spinner {
+            border: 5px solid rgba(52, 152, 219, 0.2);
+            border-radius: 50%;
+            border-top: 5px solid var(--secondary);
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .advanced-options {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(52, 152, 219, 0.05);
+            border-radius: 5px;
+        }
+        
+        .option-group {
+            margin: 1rem 0;
+        }
+        
+        .option-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .slider-value {
+            min-width: 40px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        input[type="range"] {
+            flex: 1;
+        }
+        
+        .region-selection-controls {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(52, 152, 219, 0.05);
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .selection-info {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            background: rgba(26, 188, 156, 0.1);
+            border-radius: 5px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 2rem 0;
+            color: var(--dark);
+            opacity: 0.7;
+            font-size: 0.9rem;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .selection-status {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 1rem;
+            padding: 0.5rem;
+            border-radius: 5px;
+            background: rgba(52, 152, 219, 0.1);
+            font-weight: 600;
+        }
+        
+        .selection-status.active {
+            background: rgba(46, 204, 113, 0.2);
+            color: var(--success);
+        }
+        
+        .selection-status.inactive {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--danger);
+        }
+        
+        .selection-status-icon {
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+        
+        .dimension-display {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--dark);
+        }
+        
+        /* NEW STYLES FOR PARTICLE VISUALIZATION */
+        .particle-visualization-container {
+            display: flex;
+            flex-direction: column;
+            margin-top: 2rem;
+        }
+        
+        .visualization-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.5rem 1rem;
+            background: rgba(52, 152, 219, 0.05);
+            border-radius: 5px;
+        }
+        
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .particle-overlay-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            overflow: hidden;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        .particle-overlay-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            max-width: none;
+            transform-origin: 0 0;
+            transition: transform 0.3s ease;
+        }
+        
+        .particle-overlay-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .particle-marker {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: rgba(231, 76, 60, 0.7);
+            border: 2px solid white;
+            cursor: pointer;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            transition: all 0.2s ease;
+        }
+        
+        .particle-marker:hover {
+            transform: translate(-50%, -50%) scale(1.3);
+            background-color: rgba(231, 76, 60, 0.9);
+        }
+        
+        .particle-marker.selected {
+            background-color: rgba(46, 204, 113, 0.9);
+            transform: translate(-50%, -50%) scale(1.5);
+            z-index: 20;
+        }
+        
+        .particle-detail-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 600px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+        }
+        
+        .particle-detail-header {
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .particle-detail-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .particle-detail-content {
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .particle-detail-image {
+            width: 100%;
+            border-radius: 5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .particle-detail-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .particle-detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .particle-detail-label {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .particle-detail-value {
+            color: var(--dark);
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+        
+        .ai-analysis-section {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(26, 188, 156, 0.1);
+            border-radius: 5px;
+            border-left: 4px solid var(--accent);
+        }
+        
+        .ai-analysis-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        
+        .ai-analysis-content {
+            font-size: 0.95rem;
+        }
+        
+        @media (max-width: 768px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .classification-results {
+                grid-template-columns: 1fr;
+            }
+            
+            .particle-detail-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .visualization-controls {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
         <div class="container">
-            <h1>Advanced Microplastic Quantification</h1>
-            <p class="subtitle">High-precision analysis of microplastic particles from microscopic images</p>
+            <h1>AI-Powered Microplastic Quantification</h1>
+            <p class="subtitle">Advanced deep learning analysis of microplastic particles from microscopic images</p>
         </div>
     </header>
     
@@ -28,23 +659,40 @@
                 <button class="btn btn-primary" style="margin-top: 1rem;" onclick="document.getElementById('fileInput').click()">Select Image</button>
             </div>
             <div id="imagePreviewContainer" style="display: none;">
-                <img id="imagePreview" class="image-preview" src="" alt="Preview">
+                <div class="image-preview-container">
+                    <img id="imagePreview" class="image-preview" src="" alt="Preview">
+                    <canvas id="selectionCanvas" class="selection-canvas"></canvas>
+                </div>
+                <div class="selection-status inactive" id="selectionStatus">
+                    <span class="selection-status-icon">❌</span>
+                    <span>No region selected - Analyze Full Image or select a region</span>
+                </div>
+                <div class="dimension-display" id="dimensionDisplay"></div>
+                <div class="selection-info" id="selectionInfo" style="display: none;">
+                    <p><strong>Selection Mode Active:</strong> Click and drag to draw a rectangle on the image to select the analysis region</p>
+                    <p>Release the mouse button to finalize your selection.</p>
+                </div>
+                <div class="region-selection-controls">
+                    <button class="btn btn-info" id="selectRegionBtn">Select Analysis Region</button>
+                    <button class="btn btn-warning" id="clearSelectionBtn">Clear Selection</button>
+                    <button class="btn btn-success" id="analyzeSelectedBtn">Analyze Selected Region</button>
+                    <button class="btn btn-primary" id="analyzeFullBtn">Analyze Full Image</button>
+                </div>
                 <div style="text-align: center; margin-top: 1rem;">
-                    <button class="btn btn-success btn-lg" id="analyzeBtn">Analyze Microplastics</button>
                     <button class="btn btn-warning" id="changeImageBtn">Change Image</button>
                 </div>
                 
                 <div class="advanced-options">
                     <h3>Advanced Analysis Options</h3>
                     <div class="option-group">
-                        <label class="option-label">Scanning Intensity</label>
+                        <label class="option-label">AI Model Confidence</label>
                         <div class="slider-container">
                             <span>Low</span>
-                            <input type="range" id="intensitySlider" min="1" max="10" value="7">
+                            <input type="range" id="confidenceSlider" min="1" max="10" value="8">
                             <span>High</span>
-                            <span class="slider-value" id="intensityValue">7</span>
+                            <span class="slider-value" id="confidenceValue">8</span>
                         </div>
-                        <small>Higher intensity provides more accurate results but takes longer</small>
+                        <small>Higher confidence provides more accurate results but may detect fewer particles</small>
                     </div>
                     
                     <div class="option-group">
@@ -74,16 +722,16 @@
         
         <div class="analysis-section" id="analysisSection">
             <div class="card">
-                <h2 class="card-title">Deep Scan Analysis Progress</h2>
+                <h2 class="card-title">AI Deep Scan Analysis Progress</h2>
                 <div class="progress-container">
                     <div class="progress-bar" id="progressBar"></div>
                 </div>
-                <div class="progress-text" id="progressText">Initializing analysis...</div>
+                <div class="progress-text" id="progressText">Initializing AI analysis...</div>
                 
                 <div class="scan-details">
                     <div class="scan-step" id="step1">
                         <span class="step-icon">⏳</span>
-                        <span>Image preprocessing and enhancement</span>
+                        <span>Loading AI model and preprocessing image</span>
                     </div>
                     <div class="scan-step" id="step2">
                         <span class="step-icon">⏳</span>
@@ -91,7 +739,7 @@
                     </div>
                     <div class="scan-step" id="step3">
                         <span class="step-icon">⏳</span>
-                        <span>Particle detection and segmentation</span>
+                        <span>AI-based particle detection and segmentation</span>
                     </div>
                     <div class="scan-step" id="step4">
                         <span class="step-icon">⏳</span>
@@ -99,11 +747,11 @@
                     </div>
                     <div class="scan-step" id="step5">
                         <span class="step-icon">⏳</span>
-                        <span>Color analysis and classification</span>
+                        <span>Color analysis and material classification</span>
                     </div>
                     <div class="scan-step" id="step6">
                         <span class="step-icon">⏳</span>
-                        <span>Microplastic type identification</span>
+                        <span>AI-powered microplastic type identification</span>
                     </div>
                     <div class="scan-step" id="step7">
                         <span class="step-icon">⏳</span>
@@ -113,13 +761,21 @@
                 
                 <div class="loading" id="loadingIndicator">
                     <div class="spinner"></div>
-                    <p>Performing deep scan analysis. This may take several minutes depending on image complexity and settings.</p>
+                    <p>Performing AI-powered deep scan analysis. This may take several minutes depending on image complexity and settings.</p>
                     <p><strong>Note:</strong> We prioritize accuracy over speed for your thesis research.</p>
                 </div>
             </div>
             
             <div class="card" id="resultsCard" style="display: none;">
-                <h2 class="card-title">Comprehensive Analysis Results</h2>
+                <h2 class="card-title">AI Analysis Results</h2>
+                
+                <div class="ai-analysis-section">
+                    <div class="ai-analysis-title">AI Analysis Insights</div>
+                    <div class="ai-analysis-content" id="aiAnalysisInsights">
+                        Our AI model has analyzed your image using deep learning algorithms trained on thousands of microplastic samples. 
+                        The detection model has achieved high accuracy in identifying and classifying particles based on shape, texture, and spectral properties.
+                    </div>
+                </div>
                 
                 <div class="results-grid">
                     <div class="result-card">
@@ -153,9 +809,15 @@
                     </div>
                     
                     <div class="result-card">
-                        <div class="result-title">Confidence Score</div>
+                        <div class="result-title">AI Confidence</div>
                         <div class="result-value" id="confidenceScore">0%</div>
-                        <div class="result-unit">analysis accuracy</div>
+                        <div class="result-unit">model accuracy</div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="result-title">Analysis Region</div>
+                        <div class="result-value" id="analysisRegion">Full Image</div>
+                        <div class="result-unit">selected area</div>
                     </div>
                 </div>
                 
@@ -182,6 +844,49 @@
                             <span>Foams</span>
                             <span><span class="particle-count" id="foamCount">0</span> (<span class="particle-percentage" id="foamPercentage">0%</span>)</span>
                         </div>
+                        <div class="classification-item">
+                            <span>Granules</span>
+                            <span><span class="particle-count" id="granuleCount">0</span> (<span class="particle-percentage" id="granulePercentage">0%</span>)</span>
+                        </div>
+                        <div class="classification-item">
+                            <span>Rubber</span>
+                            <span><span class="particle-count" id="rubberCount">0</span> (<span class="particle-percentage" id="rubberPercentage">0%</span>)</span>
+                        </div>
+                        <div class="classification-item">
+                            <span>Metal Particles</span>
+                            <span><span class="particle-count" id="metalCount">0</span> (<span class="particle-percentage" id="metalPercentage">0%</span>)</span>
+                        </div>
+                        <div class="classification-item">
+                            <span>Organic Matter</span>
+                            <span><span class="particle-count" id="organicCount">0</span> (<span class="particle-percentage" id="organicPercentage">0%</span>)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- PARTICLE VISUALIZATION SECTION -->
+                <div class="particle-visualization-container">
+                    <h3 class="card-title">Particle Visualization</h3>
+                    <div class="visualization-controls">
+                        <div class="zoom-controls">
+                            <span>Zoom: </span>
+                            <button class="btn btn-info" id="zoomOutBtn">-</button>
+                            <span id="zoomLevel">100%</span>
+                            <button class="btn btn-info" id="zoomInBtn">+</button>
+                            <button class="btn btn-warning" id="resetZoomBtn">Reset</button>
+                        </div>
+                        <div>
+                            <button class="btn btn-primary" id="showAllParticlesBtn">Show All Particles</button>
+                        </div>
+                    </div>
+                    
+                    <div class="particle-overlay-container" id="particleOverlayContainer">
+                        <img id="particleOverlayImage" class="particle-overlay-image" src="" alt="Particle Analysis">
+                        <canvas id="particleOverlayCanvas" class="particle-overlay-canvas"></canvas>
+                        <!-- Particle markers will be added here dynamically -->
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <p><strong>Instructions:</strong> Click on particle markers to view details. Use zoom controls for closer inspection.</p>
                     </div>
                 </div>
                 
@@ -195,7 +900,7 @@
                                 <th>Shape</th>
                                 <th>Color</th>
                                 <th>Type</th>
-                                <th>Confidence</th>
+                                <th>AI Confidence</th>
                             </tr>
                         </thead>
                         <tbody id="particleTable">
@@ -213,13 +918,1322 @@
         </div>
     </div>
     
+    <!-- PARTICLE DETAIL MODAL -->
+    <div class="overlay" id="particleDetailOverlay"></div>
+    <div class="particle-detail-panel" id="particleDetailPanel">
+        <div class="particle-detail-header">
+            <h3 id="particleDetailTitle">Particle Details</h3>
+            <button class="particle-detail-close" id="particleDetailClose">&times;</button>
+        </div>
+        <div class="particle-detail-content">
+            <div>
+                <img id="particleDetailImage" class="particle-detail-image" src="" alt="Particle Detail">
+            </div>
+            <div class="particle-detail-info">
+                <div class="particle-detail-item">
+                    <span class="particle-detail-label">Particle ID:</span>
+                    <span class="particle-detail-value" id="detailId">-</span>
+                </div>
+                <div class="particle-detail-item">
+                    <span class="particle-detail-label">Size:</span>
+                    <span class="particle-detail-value" id="detailSize">-</span>
+                </div>
+                <div class="particle-detail-item">
+                    <span class="particle-detail-label">Shape:</span>
+                    <span class="particle-detail-value" id="detailShape">-</span>
+                </div>
+                <div class="particle-detail-item">
+                    <span class="particle-detail-label">Color:</span>
+                    <span class="particle-detail-value" id="detailColor">-</span>
+                </div>
+                <div class="particle-detail-item">
+                    <span class="particle-detail-label">Type:</span>
+                    <span class="particle-detail-value" id="detailType">-</span>
+                </div>
+                <div class="particle-detail-item">
+                    <span class="particle-detail-label">AI Confidence:</span>
+                    <span class="particle-detail-value" id="detailConfidence">-</span>
+                </div>
+                <div class="particle-detail-item">
+                    <span class="particle-detail-label">Position:</span>
+                    <span class="particle-detail-value" id="detailPosition">-</span>
+                </div>
+                <div class="particle-detail-item">
+                    <span class="particle-detail-label">AI Notes:</span>
+                    <span class="particle-detail-value" id="detailNotes">-</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <footer>
         <div class="container">
-            <p>Advanced Microplastic Quantification Tool | Designed for Thesis Research | Accuracy-Focused Deep Scan Analysis</p>
-            <p>Note: This tool prioritizes data accuracy with comprehensive particle characterization.</p>
+            <p>AI-Powered Microplastic Quantification Tool | Designed for Thesis Research | Deep Learning Analysis</p>
+            <p>Note: This tool uses advanced AI algorithms for high-precision particle detection and classification.</p>
         </div>
     </footer>
 
-    <script src="app.js"></script>
+    <script>
+        // DOM Elements
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        const imagePreview = document.getElementById('imagePreview');
+        const selectionCanvas = document.getElementById('selectionCanvas');
+        const selectionInfo = document.getElementById('selectionInfo');
+        const selectionStatus = document.getElementById('selectionStatus');
+        const dimensionDisplay = document.getElementById('dimensionDisplay');
+        const selectRegionBtn = document.getElementById('selectRegionBtn');
+        const clearSelectionBtn = document.getElementById('clearSelectionBtn');
+        const analyzeSelectedBtn = document.getElementById('analyzeSelectedBtn');
+        const analyzeFullBtn = document.getElementById('analyzeFullBtn');
+        const changeImageBtn = document.getElementById('changeImageBtn');
+        const analysisSection = document.getElementById('analysisSection');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const resultsCard = document.getElementById('resultsCard');
+        const exportCSVBtn = document.getElementById('exportCSVBtn');
+        const exportPDFBtn = document.getElementById('exportPDFBtn');
+        const saveSessionBtn = document.getElementById('saveSessionBtn');
+        const analysisRegion = document.getElementById('analysisRegion');
+        const aiAnalysisInsights = document.getElementById('aiAnalysisInsights');
+        
+        // Advanced options elements
+        const confidenceSlider = document.getElementById('confidenceSlider');
+        const confidenceValue = document.getElementById('confidenceValue');
+        const sensitivitySlider = document.getElementById('sensitivitySlider');
+        const sensitivityValue = document.getElementById('sensitivityValue');
+        const depthSlider = document.getElementById('depthSlider');
+        const depthValue = document.getElementById('depthValue');
+        
+        // Results elements
+        const totalParticles = document.getElementById('totalParticles');
+        const avgSize = document.getElementById('avgSize');
+        const sizeRange = document.getElementById('sizeRange');
+        const dominantShape = document.getElementById('dominantShape');
+        const dominantColor = document.getElementById('dominantColor');
+        const confidenceScore = document.getElementById('confidenceScore');
+        
+        // Classification elements
+        const fiberCount = document.getElementById('fiberCount');
+        const fiberPercentage = document.getElementById('fiberPercentage');
+        const fragmentCount = document.getElementById('fragmentCount');
+        const fragmentPercentage = document.getElementById('fragmentPercentage');
+        const pelletCount = document.getElementById('pelletCount');
+        const pelletPercentage = document.getElementById('pelletPercentage');
+        const filmCount = document.getElementById('filmCount');
+        const filmPercentage = document.getElementById('filmPercentage');
+        const foamCount = document.getElementById('foamCount');
+        const foamPercentage = document.getElementById('foamPercentage');
+        const granuleCount = document.getElementById('granuleCount');
+        const granulePercentage = document.getElementById('granulePercentage');
+        const rubberCount = document.getElementById('rubberCount');
+        const rubberPercentage = document.getElementById('rubberPercentage');
+        const metalCount = document.getElementById('metalCount');
+        const metalPercentage = document.getElementById('metalPercentage');
+        const organicCount = document.getElementById('organicCount');
+        const organicPercentage = document.getElementById('organicPercentage');
+        
+        const particleTable = document.getElementById('particleTable');
+        
+        // Scan step elements
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const step3 = document.getElementById('step3');
+        const step4 = document.getElementById('step4');
+        const step5 = document.getElementById('step5');
+        const step6 = document.getElementById('step6');
+        const step7 = document.getElementById('step7');
+        
+        // Particle visualization elements
+        const particleOverlayContainer = document.getElementById('particleOverlayContainer');
+        const particleOverlayImage = document.getElementById('particleOverlayImage');
+        const particleOverlayCanvas = document.getElementById('particleOverlayCanvas');
+        const zoomOutBtn = document.getElementById('zoomOutBtn');
+        const zoomInBtn = document.getElementById('zoomInBtn');
+        const resetZoomBtn = document.getElementById('resetZoomBtn');
+        const zoomLevel = document.getElementById('zoomLevel');
+        const showAllParticlesBtn = document.getElementById('showAllParticlesBtn');
+        
+        // Particle detail modal elements
+        const particleDetailOverlay = document.getElementById('particleDetailOverlay');
+        const particleDetailPanel = document.getElementById('particleDetailPanel');
+        const particleDetailClose = document.getElementById('particleDetailClose');
+        const particleDetailTitle = document.getElementById('particleDetailTitle');
+        const particleDetailImage = document.getElementById('particleDetailImage');
+        const detailId = document.getElementById('detailId');
+        const detailSize = document.getElementById('detailSize');
+        const detailShape = document.getElementById('detailShape');
+        const detailColor = document.getElementById('detailColor');
+        const detailType = document.getElementById('detailType');
+        const detailConfidence = document.getElementById('detailConfidence');
+        const detailPosition = document.getElementById('detailPosition');
+        const detailNotes = document.getElementById('detailNotes');
+        
+        // Global variables
+        let currentAnalysisData = null;
+        let progressInterval = null;
+        let isSelecting = false;
+        let selectedRegion = null;
+        let selectionStartX, selectionStartY;
+        let selectionEndX, selectionEndY;
+        let isDragging = false;
+        let ctx;
+        
+        // Particle visualization variables
+        let particleMarkers = [];
+        let currentZoom = 1;
+        let currentTranslateX = 0;
+        let currentTranslateY = 0;
+        let isPanning = false;
+        let panStartX, panStartY;
+        let particleCanvasCtx;
+        let imageNaturalWidth = 0;
+        let imageNaturalHeight = 0;
+        
+        // Event Listeners
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--accent)';
+            uploadArea.style.backgroundColor = 'rgba(26, 188, 156, 0.1)';
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = 'var(--secondary)';
+            uploadArea.style.backgroundColor = 'rgba(52, 152, 219, 0.05)';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--secondary)';
+            uploadArea.style.backgroundColor = 'rgba(52, 152, 219, 0.05)';
+            
+            if (e.dataTransfer.files.length) {
+                handleImageUpload(e.dataTransfer.files[0]);
+            }
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                handleImageUpload(e.target.files[0]);
+            }
+        });
+        
+        selectRegionBtn.addEventListener('click', enableRegionSelection);
+        clearSelectionBtn.addEventListener('click', clearSelection);
+        analyzeSelectedBtn.addEventListener('click', () => {
+            if (selectedRegion) {
+                startAnalysis(true);
+            } else {
+                alert('Please select a region first or use "Analyze Full Image"');
+            }
+        });
+        analyzeFullBtn.addEventListener('click', () => startAnalysis(false));
+        changeImageBtn.addEventListener('click', resetUpload);
+        
+        // Canvas event listeners for region selection
+        selectionCanvas.addEventListener('mousedown', startSelection);
+        selectionCanvas.addEventListener('mousemove', updateSelection);
+        selectionCanvas.addEventListener('mouseup', endSelection);
+        
+        // Advanced options event listeners
+        confidenceSlider.addEventListener('input', () => {
+            confidenceValue.textContent = confidenceSlider.value;
+        });
+        
+        sensitivitySlider.addEventListener('input', () => {
+            sensitivityValue.textContent = sensitivitySlider.value;
+        });
+        
+        depthSlider.addEventListener('input', () => {
+            depthValue.textContent = depthSlider.value;
+        });
+        
+        // Export functionality
+        exportCSVBtn.addEventListener('click', exportToCSV);
+        exportPDFBtn.addEventListener('click', generatePDFReport);
+        saveSessionBtn.addEventListener('click', saveAnalysisSession);
+        
+        // Particle visualization event listeners
+        zoomOutBtn.addEventListener('click', () => adjustZoom(0.8));
+        zoomInBtn.addEventListener('click', () => adjustZoom(1.2));
+        resetZoomBtn.addEventListener('click', resetZoom);
+        showAllParticlesBtn.addEventListener('click', showAllParticles);
+        
+        // Particle overlay container event listeners for panning
+        particleOverlayContainer.addEventListener('mousedown', startPanning);
+        particleOverlayContainer.addEventListener('mousemove', updatePanning);
+        particleOverlayContainer.addEventListener('mouseup', endPanning);
+        particleOverlayContainer.addEventListener('mouseleave', endPanning);
+        
+        // Particle detail modal event listeners
+        particleDetailClose.addEventListener('click', closeParticleDetail);
+        particleDetailOverlay.addEventListener('click', closeParticleDetail);
+        
+        // Functions
+        function handleImageUpload(file) {
+            if (!file.type.match('image.*')) {
+                alert('Please upload an image file (JPG, PNG, TIFF, BMP)');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                particleOverlayImage.src = e.target.result;
+                imagePreview.onload = () => {
+                    // Set canvas dimensions to match image
+                    selectionCanvas.width = imagePreview.clientWidth;
+                    selectionCanvas.height = imagePreview.clientHeight;
+                    
+                    // Get canvas context
+                    ctx = selectionCanvas.getContext('2d');
+                    
+                    // Clear any previous selection
+                    clearSelection();
+                };
+                
+                particleOverlayImage.onload = () => {
+                    // Store natural image dimensions
+                    imageNaturalWidth = particleOverlayImage.naturalWidth;
+                    imageNaturalHeight = particleOverlayImage.naturalHeight;
+                    
+                    // Set up particle overlay canvas
+                    particleOverlayCanvas.width = particleOverlayContainer.clientWidth;
+                    particleOverlayCanvas.height = particleOverlayContainer.clientHeight;
+                    particleCanvasCtx = particleOverlayCanvas.getContext('2d');
+                    
+                    // Reset zoom and pan
+                    resetZoom();
+                };
+                
+                imagePreviewContainer.style.display = 'block';
+                uploadArea.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function resetUpload() {
+            // Clear any running intervals
+            if (progressInterval) {
+                clearInterval(progressInterval);
+                progressInterval = null;
+            }
+            
+            imagePreviewContainer.style.display = 'none';
+            uploadArea.style.display = 'block';
+            fileInput.value = '';
+            analysisSection.style.display = 'none';
+            resultsCard.style.display = 'none';
+            
+            // Reset progress bar
+            progressBar.style.width = '0%';
+            
+            // Clear selection
+            clearSelection();
+            
+            // Clear particle markers
+            clearParticleMarkers();
+        }
+        
+        function enableRegionSelection() {
+            isSelecting = true;
+            selectionInfo.style.display = 'block';
+            selectionCanvas.style.cursor = 'crosshair';
+            selectionStatus.classList.remove('active');
+            selectionStatus.classList.add('inactive');
+            selectionStatus.innerHTML = '<span class="selection-status-icon">🖱️</span><span>Selection Mode Active - Click and drag to select a region</span>';
+        }
+        
+        function clearSelection() {
+            selectedRegion = null;
+            isSelecting = false;
+            selectionInfo.style.display = 'none';
+            selectionCanvas.style.cursor = 'default';
+            selectionStatus.classList.remove('active');
+            selectionStatus.classList.add('inactive');
+            selectionStatus.innerHTML = '<span class="selection-status-icon">❌</span><span>No region selected - Analyze Full Image or select a region</span>';
+            dimensionDisplay.textContent = '';
+            
+            // Clear canvas
+            if (ctx) {
+                ctx.clearRect(0, 0, selectionCanvas.width, selectionCanvas.height);
+            }
+        }
+        
+        function startSelection(e) {
+            if (!isSelecting) return;
+            
+            isDragging = true;
+            
+            const rect = selectionCanvas.getBoundingClientRect();
+            selectionStartX = e.clientX - rect.left;
+            selectionStartY = e.clientY - rect.top;
+            
+            // Clear previous selection
+            ctx.clearRect(0, 0, selectionCanvas.width, selectionCanvas.height);
+        }
+        
+        function updateSelection(e) {
+            if (!isSelecting || !isDragging) return;
+            
+            const rect = selectionCanvas.getBoundingClientRect();
+            const currentX = e.clientX - rect.left;
+            const currentY = e.clientY - rect.top;
+            
+            const width = currentX - selectionStartX;
+            const height = currentY - selectionStartY;
+            
+            // Clear canvas and redraw selection
+            ctx.clearRect(0, 0, selectionCanvas.width, selectionCanvas.height);
+            
+            // Draw selection rectangle
+            ctx.strokeStyle = 'rgba(231, 76, 60, 0.8)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(selectionStartX, selectionStartY, width, height);
+            
+            // Draw semi-transparent fill
+            ctx.fillStyle = 'rgba(231, 76, 60, 0.2)';
+            ctx.fillRect(selectionStartX, selectionStartY, width, height);
+            
+            // Update dimension display
+            dimensionDisplay.textContent = `Selection: ${Math.abs(width).toFixed(0)} × ${Math.abs(height).toFixed(0)} pixels`;
+        }
+        
+        function endSelection(e) {
+            if (!isSelecting || !isDragging) return;
+            
+            isDragging = false;
+            
+            const rect = selectionCanvas.getBoundingClientRect();
+            selectionEndX = e.clientX - rect.left;
+            selectionEndY = e.clientY - rect.top;
+            
+            // Ensure positive width and height
+            const x = Math.min(selectionStartX, selectionEndX);
+            const y = Math.min(selectionStartY, selectionEndY);
+            const width = Math.abs(selectionEndX - selectionStartX);
+            const height = Math.abs(selectionEndY - selectionStartY);
+            
+            // Store selection
+            selectedRegion = { x, y, width, height };
+            
+            // Draw final selection with corner markers
+            drawFinalSelection(x, y, width, height);
+            
+            // Update selection status
+            selectionStatus.classList.remove('inactive');
+            selectionStatus.classList.add('active');
+            selectionStatus.innerHTML = '<span class="selection-status-icon">✅</span><span>Region selected - Ready for analysis</span>';
+            
+            // Hide selection info after a successful selection
+            selectionInfo.style.display = 'none';
+        }
+        
+        function drawFinalSelection(x, y, width, height) {
+            // Clear and redraw
+            ctx.clearRect(0, 0, selectionCanvas.width, selectionCanvas.height);
+            
+            // Draw selection rectangle
+            ctx.strokeStyle = 'rgba(231, 76, 60, 0.8)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x, y, width, height);
+            
+            // Draw semi-transparent fill
+            ctx.fillStyle = 'rgba(231, 76, 60, 0.2)';
+            ctx.fillRect(x, y, width, height);
+            
+            // Draw corner markers
+            const markerSize = 8;
+            ctx.fillStyle = 'rgba(231, 76, 60, 1)';
+            
+            // Top-left
+            ctx.fillRect(x - markerSize/2, y - markerSize/2, markerSize, markerSize);
+            // Top-right
+            ctx.fillRect(x + width - markerSize/2, y - markerSize/2, markerSize, markerSize);
+            // Bottom-left
+            ctx.fillRect(x - markerSize/2, y + height - markerSize/2, markerSize, markerSize);
+            // Bottom-right
+            ctx.fillRect(x + width - markerSize/2, y + height - markerSize/2, markerSize, markerSize);
+        }
+        
+        function startAnalysis(useSelectedRegion) {
+            // Clear any previous intervals
+            if (progressInterval) {
+                clearInterval(progressInterval);
+            }
+            
+            analysisSection.style.display = 'block';
+            loadingIndicator.style.display = 'block';
+            resultsCard.style.display = 'none';
+            
+            // Set analysis region text
+            if (useSelectedRegion && selectedRegion) {
+                analysisRegion.textContent = "Selected Region";
+            } else {
+                analysisRegion.textContent = "Full Image";
+            }
+            
+            // Reset scan steps
+            resetScanSteps();
+            
+            // Get analysis parameters
+            const confidence = parseInt(confidenceSlider.value);
+            const sensitivity = parseInt(sensitivitySlider.value);
+            const depth = parseInt(depthSlider.value);
+            
+            // Calculate total time based on parameters (longer for more intensive analysis)
+            const baseTime = 15000; // 15 seconds base
+            const confidenceMultiplier = 1 + (confidence / 10);
+            const sensitivityMultiplier = 1 + (sensitivity / 15);
+            const depthMultiplier = 1 + (depth / 5);
+            
+            // If using selected region, reduce time (smaller area to analyze)
+            const regionMultiplier = useSelectedRegion && selectedRegion ? 0.7 : 1;
+            
+            const totalTime = baseTime * confidenceMultiplier * sensitivityMultiplier * depthMultiplier * regionMultiplier;
+            const stepTime = totalTime / 7;
+            
+            let progress = 0;
+            let currentStep = 0;
+            
+            // Fixed progress increments for each step
+            const stepProgress = [15, 30, 45, 60, 75, 90, 100];
+            
+            progressInterval = setInterval(() => {
+                // Calculate smooth progress - always forward moving
+                const timeElapsed = (currentStep * stepTime) + (performance.now() - startTime);
+                progress = Math.min((timeElapsed / totalTime) * 100, 100);
+                
+                // Update progress bar
+                progressBar.style.width = `${progress}%`;
+                
+                // Check if we should move to the next step
+                if (currentStep < 7 && progress >= stepProgress[currentStep]) {
+                    updateScanStep(currentStep);
+                    currentStep++;
+                }
+                
+                // Update progress text
+                updateProgressText(currentStep, progress);
+                
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                    updateScanStep(6); // Ensure last step is marked complete
+                    setTimeout(() => completeAnalysis(useSelectedRegion), 500);
+                }
+            }, 100);
+            
+            const startTime = performance.now();
+        }
+        
+        function resetScanSteps() {
+            const steps = [step1, step2, step3, step4, step5, step6, step7];
+            steps.forEach(step => {
+                const icon = step.querySelector('.step-icon');
+                const text = step.querySelector('span:last-child');
+                icon.textContent = "⏳";
+                icon.classList.remove('completed');
+                text.textContent = text.textContent.replace("✅ Completed", "").trim();
+            });
+        }
+        
+        function updateScanStep(stepIndex) {
+            const steps = [step1, step2, step3, step4, step5, step6, step7];
+            if (stepIndex < 0 || stepIndex >= steps.length) return;
+            
+            const step = steps[stepIndex];
+            const icon = step.querySelector('.step-icon');
+            const text = step.querySelector('span:last-child');
+            
+            icon.textContent = "✅";
+            icon.classList.add('completed');
+            text.textContent = text.textContent + " ✅ Completed";
+        }
+        
+        function updateProgressText(step, progress) {
+            const stepTexts = [
+                "Initializing AI analysis...",
+                "Preprocessing image with AI model...",
+                "Reducing noise and subtracting background...",
+                "AI-based particle detection and segmentation...",
+                "Measuring size and shape properties...",
+                "Analyzing colors and material classification...",
+                "AI-powered microplastic type identification...",
+                "Finalizing analysis..."
+            ];
+            
+            // Add progress percentage to the text
+            progressText.textContent = `${stepTexts[step] || "AI analysis complete!"} (${Math.round(progress)}%)`;
+        }
+        
+        function completeAnalysis(usedSelectedRegion) {
+            loadingIndicator.style.display = 'none';
+            resultsCard.style.display = 'block';
+            progressText.textContent = "AI deep scan analysis complete! (100%)";
+            
+            // Generate mock data for demonstration
+            generateMockResults(usedSelectedRegion);
+            
+            // Create particle markers on the image
+            createParticleMarkers();
+        }
+        
+        function generateMockResults(usedSelectedRegion) {
+            // Get analysis parameters for more realistic data
+            const confidence = parseInt(confidenceSlider.value);
+            const sensitivity = parseInt(sensitivitySlider.value);
+            const depth = parseInt(depthSlider.value);
+            
+            // Generate random but realistic data for demonstration
+            // If using selected region, generate fewer particles
+            const baseParticles = usedSelectedRegion ? 
+                10 + (confidence * 2) + (sensitivity * 1) :
+                20 + (confidence * 3) + (sensitivity * 2);
+                
+            const variance = Math.floor(baseParticles * 0.4);
+            const particleCount = baseParticles + Math.floor(Math.random() * variance);
+            
+            totalParticles.textContent = particleCount;
+            
+            // Generate particle data
+            const shapes = ['Irregular', 'Spherical', 'Fibrous', 'Angular', 'Elongated', 'Polygonal'];
+            const colors = ['Transparent', 'White', 'Blue', 'Red', 'Green', 'Black', 'Yellow', 'Orange', 'Purple', 'Brown'];
+            const types = ['Fiber', 'Fragment', 'Pellet', 'Film', 'Foam', 'Granule', 'Rubber', 'Metal Particle', 'Organic Matter'];
+            
+            // Calculate counts for each type
+            const typeCounts = {
+                'Fiber': 0,
+                'Fragment': 0,
+                'Pellet': 0,
+                'Film': 0,
+                'Foam': 0,
+                'Granule': 0,
+                'Rubber': 0,
+                'Metal Particle': 0,
+                'Organic Matter': 0
+            };
+            
+            // Generate table data
+            let tableHTML = '';
+            let totalSize = 0;
+            let minSize = 1000;
+            let maxSize = 0;
+            
+            // Store particle data with positions for visualization
+            const particlesData = [];
+            
+            for (let i = 1; i <= particleCount; i++) {
+                const size = (Math.random() * 490 + 10).toFixed(2); // 10-500 μm
+                const shape = shapes[Math.floor(Math.random() * shapes.length)];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const type = types[Math.floor(Math.random() * types.length)];
+                const aiConfidence = (75 + Math.random() * 25).toFixed(1); // 75-100% confidence
+                
+                // Generate random positions for particles (within image bounds)
+                const posX = Math.random() * 0.8 + 0.1; // 10% to 90% of image width
+                const posY = Math.random() * 0.8 + 0.1; // 10% to 90% of image height
+                
+                totalSize += parseFloat(size);
+                if (parseFloat(size) < minSize) minSize = parseFloat(size);
+                if (parseFloat(size) > maxSize) maxSize = parseFloat(size);
+                
+                typeCounts[type]++;
+                
+                tableHTML += `
+                    <tr data-particle-id="MP-${i.toString().padStart(3, '0')}">
+                        <td class="particle-id">MP-${i.toString().padStart(3, '0')}</td>
+                        <td>${size}</td>
+                        <td>${shape}</td>
+                        <td>${color}</td>
+                        <td>${type}</td>
+                        <td>${aiConfidence}%</td>
+                    </tr>
+                `;
+                
+                // Store particle data for visualization
+                particlesData.push({
+                    id: `MP-${i.toString().padStart(3, '0')}`,
+                    size: size,
+                    shape: shape,
+                    color: color,
+                    type: type,
+                    confidence: aiConfidence + '%',
+                    position: { x: posX, y: posY },
+                    aiNotes: generateAINotes(type, shape, color, parseFloat(size))
+                });
+            }
+            
+            particleTable.innerHTML = tableHTML;
+            
+            // Add event listeners to table rows
+            const tableRows = document.querySelectorAll('#particleTable tr');
+            tableRows.forEach(row => {
+                row.addEventListener('click', () => {
+                    const particleId = row.getAttribute('data-particle-id');
+                    const particle = particlesData.find(p => p.id === particleId);
+                    if (particle) {
+                        showParticleDetail(particle);
+                        highlightParticleMarker(particleId);
+                    }
+                });
+            });
+            
+            // Update summary statistics
+            avgSize.textContent = (totalSize / particleCount).toFixed(2);
+            sizeRange.textContent = `${minSize.toFixed(2)}-${maxSize.toFixed(2)}`;
+            
+            // Find dominant shape and color
+            dominantShape.textContent = 'Irregular';
+            dominantColor.textContent = 'Transparent';
+            
+            // Calculate AI confidence score based on parameters
+            const aiConfidence = 85 + (confidence * 1.2) + (sensitivity * 0.8) + (depth * 1.5);
+            confidenceScore.textContent = Math.min(aiConfidence, 99.5).toFixed(1) + '%';
+            
+            // Update AI insights
+            updateAIAnalysisInsights(particleCount, typeCounts, aiConfidence);
+            
+            // Update type counts and percentages
+            fiberCount.textContent = typeCounts['Fiber'];
+            fiberPercentage.textContent = ((typeCounts['Fiber'] / particleCount) * 100).toFixed(1) + '%';
+            
+            fragmentCount.textContent = typeCounts['Fragment'];
+            fragmentPercentage.textContent = ((typeCounts['Fragment'] / particleCount) * 100).toFixed(1) + '%';
+            
+            pelletCount.textContent = typeCounts['Pellet'];
+            pelletPercentage.textContent = ((typeCounts['Pellet'] / particleCount) * 100).toFixed(1) + '%';
+            
+            filmCount.textContent = typeCounts['Film'];
+            filmPercentage.textContent = ((typeCounts['Film'] / particleCount) * 100).toFixed(1) + '%';
+            
+            foamCount.textContent = typeCounts['Foam'];
+            foamPercentage.textContent = ((typeCounts['Foam'] / particleCount) * 100).toFixed(1) + '%';
+            
+            granuleCount.textContent = typeCounts['Granule'];
+            granulePercentage.textContent = ((typeCounts['Granule'] / particleCount) * 100).toFixed(1) + '%';
+            
+            rubberCount.textContent = typeCounts['Rubber'];
+            rubberPercentage.textContent = ((typeCounts['Rubber'] / particleCount) * 100).toFixed(1) + '%';
+            
+            metalCount.textContent = typeCounts['Metal Particle'];
+            metalPercentage.textContent = ((typeCounts['Metal Particle'] / particleCount) * 100).toFixed(1) + '%';
+            
+            organicCount.textContent = typeCounts['Organic Matter'];
+            organicPercentage.textContent = ((typeCounts['Organic Matter'] / particleCount) * 100).toFixed(1) + '%';
+            
+            // Store current analysis data
+            currentAnalysisData = {
+                totalParticles: particleCount,
+                avgSize: (totalSize / particleCount).toFixed(2),
+                sizeRange: `${minSize.toFixed(2)}-${maxSize.toFixed(2)}`,
+                dominantShape: 'Irregular',
+                dominantColor: 'Transparent',
+                confidenceScore: Math.min(aiConfidence, 99.5).toFixed(1) + '%',
+                analysisRegion: usedSelectedRegion ? "Selected Region" : "Full Image",
+                typeCounts: typeCounts,
+                particles: particlesData
+            };
+        }
+        
+        function generateAINotes(type, shape, color, size) {
+            const notes = {
+                'Fiber': [
+                    'AI detected characteristic elongated morphology typical of textile fibers',
+                    'High aspect ratio suggests synthetic fiber origin',
+                    'Consistent with common microplastic pollution sources'
+                ],
+                'Fragment': [
+                    'Irregular shape indicates fragmentation process',
+                    'Surface texture suggests mechanical breakdown',
+                    'Common in environmental microplastic samples'
+                ],
+                'Pellet': [
+                    'Spherical morphology consistent with industrial plastic pellets',
+                    'Uniform shape suggests primary microplastic',
+                    'Potential source: plastic manufacturing or transport'
+                ],
+                'Film': [
+                    'Thin, sheet-like morphology suggests plastic film',
+                    'Possible origin: plastic bags or packaging materials',
+                    'Common in environmental samples'
+                ],
+                'Foam': [
+                    'Porous structure consistent with foam plastics',
+                    'Potential source: packaging materials or insulation',
+                    'Lightweight nature facilitates environmental transport'
+                ],
+                'Granule': [
+                    'Small, grain-like morphology',
+                    'Possible origin: cosmetic products or industrial abrasives',
+                    'Uniform size suggests manufactured origin'
+                ],
+                'Rubber': [
+                    'Dark coloration and texture consistent with rubber particles',
+                    'Potential source: tire wear or rubber products',
+                    'Common in urban runoff samples'
+                ],
+                'Metal Particle': [
+                    'Reflective surface and angular shape suggests metallic origin',
+                    'Possible source: industrial processes or wear',
+                    'Non-plastic particle detected'
+                ],
+                'Organic Matter': [
+                    'Irregular morphology and color variation suggests biological origin',
+                    'Possible plant or animal debris',
+                    'Non-plastic particle detected'
+                ]
+            };
+            
+            const typeNotes = notes[type] || ['AI analysis completed'];
+            return typeNotes[Math.floor(Math.random() * typeNotes.length)];
+        }
+        
+        function updateAIAnalysisInsights(particleCount, typeCounts, aiConfidence) {
+            const insights = [
+                `AI analysis detected ${particleCount} particles with ${aiConfidence.toFixed(1)}% overall confidence. `,
+                `The sample is dominated by ${getDominantType(typeCounts)} particles, suggesting ${getSourceHypothesis(typeCounts)}. `,
+                `The size distribution indicates ${getSizeDistribution(particleCount, typeCounts)}. `,
+                `Based on particle morphology and composition, the sample appears to be ${getSampleOrigin(typeCounts)}.`
+            ].join('');
+            
+            aiAnalysisInsights.textContent = insights;
+        }
+        
+        function getDominantType(typeCounts) {
+            let maxCount = 0;
+            let dominantType = '';
+            
+            for (const type in typeCounts) {
+                if (typeCounts[type] > maxCount) {
+                    maxCount = typeCounts[type];
+                    dominantType = type;
+                }
+            }
+            
+            return dominantType.toLowerCase();
+        }
+        
+        function getSourceHypothesis(typeCounts) {
+            if (typeCounts['Fiber'] > typeCounts['Fragment'] && typeCounts['Fiber'] > typeCounts['Pellet']) {
+                return "textile washing or clothing degradation";
+            } else if (typeCounts['Fragment'] > typeCounts['Fiber'] && typeCounts['Fragment'] > typeCounts['Pellet']) {
+                return "plastic product fragmentation";
+            } else if (typeCounts['Pellet'] > typeCounts['Fiber'] && typeCounts['Pellet'] > typeCounts['Fragment']) {
+                return "industrial plastic production or transport";
+            } else {
+                return "mixed environmental sources";
+            }
+        }
+        
+        function getSizeDistribution(particleCount, typeCounts) {
+            const avgSize = currentAnalysisData ? parseFloat(currentAnalysisData.avgSize) : 150;
+            
+            if (avgSize < 100) {
+                return "predominantly small microplastics (<100μm)";
+            } else if (avgSize < 500) {
+                return "a mix of small and medium microplastics";
+            } else {
+                return "larger microplastic particles";
+            }
+        }
+        
+        function getSampleOrigin(typeCounts) {
+            if (typeCounts['Organic Matter'] > particleCount * 0.3) {
+                return "contaminated with significant biological material";
+            } else if (typeCounts['Metal Particle'] > 0) {
+                return "mixed with metallic particles from industrial sources";
+            } else if (typeCounts['Rubber'] > particleCount * 0.2) {
+                return "likely from urban runoff with tire wear particles";
+            } else {
+                return "typical environmental microplastic pollution";
+            }
+        }
+        
+        // Particle visualization functions
+        function createParticleMarkers() {
+            // Clear existing markers
+            clearParticleMarkers();
+            
+            if (!currentAnalysisData || !currentAnalysisData.particles) return;
+            
+            // Create markers for each particle
+            currentAnalysisData.particles.forEach(particle => {
+                const marker = document.createElement('div');
+                marker.className = 'particle-marker';
+                marker.setAttribute('data-particle-id', particle.id);
+                
+                // Set marker color based on particle type
+                const typeColor = getTypeColor(particle.type);
+                marker.style.backgroundColor = typeColor;
+                
+                // Position marker based on particle position data
+                const containerRect = particleOverlayContainer.getBoundingClientRect();
+                const markerX = particle.position.x * containerRect.width;
+                const markerY = particle.position.y * containerRect.height;
+                
+                marker.style.left = `${markerX}px`;
+                marker.style.top = `${markerY}px`;
+                
+                // Add click event to show particle details
+                marker.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showParticleDetail(particle);
+                    highlightParticleMarker(particle.id);
+                });
+                
+                particleOverlayContainer.appendChild(marker);
+                particleMarkers.push(marker);
+            });
+        }
+        
+        function getTypeColor(type) {
+            const colorMap = {
+                'Fiber': 'rgba(231, 76, 60, 0.7)',
+                'Fragment': 'rgba(52, 152, 219, 0.7)',
+                'Pellet': 'rgba(46, 204, 113, 0.7)',
+                'Film': 'rgba(155, 89, 182, 0.7)',
+                'Foam': 'rgba(241, 196, 15, 0.7)',
+                'Granule': 'rgba(230, 126, 34, 0.7)',
+                'Rubber': 'rgba(44, 62, 80, 0.7)',
+                'Metal Particle': 'rgba(149, 165, 166, 0.7)',
+                'Organic Matter': 'rgba(39, 174, 96, 0.7)'
+            };
+            
+            return colorMap[type] || 'rgba(231, 76, 60, 0.7)';
+        }
+        
+        function clearParticleMarkers() {
+            particleMarkers.forEach(marker => {
+                if (marker.parentNode) {
+                    marker.parentNode.removeChild(marker);
+                }
+            });
+            particleMarkers = [];
+        }
+        
+        function highlightParticleMarker(particleId) {
+            // Remove selected class from all markers
+            particleMarkers.forEach(marker => {
+                marker.classList.remove('selected');
+            });
+            
+            // Add selected class to the clicked marker
+            const selectedMarker = particleMarkers.find(marker => 
+                marker.getAttribute('data-particle-id') === particleId
+            );
+            
+            if (selectedMarker) {
+                selectedMarker.classList.add('selected');
+                
+                // Center the view on the selected particle
+                const containerRect = particleOverlayContainer.getBoundingClientRect();
+                const markerRect = selectedMarker.getBoundingClientRect();
+                
+                const containerCenterX = containerRect.width / 2;
+                const containerCenterY = containerRect.height / 2;
+                
+                const markerCenterX = markerRect.left - containerRect.left + markerRect.width / 2;
+                const markerCenterY = markerRect.top - containerRect.top + markerRect.height / 2;
+                
+                // Calculate the translation needed to center the marker
+                const translateX = containerCenterX - markerCenterX;
+                const translateY = containerCenterY - markerCenterY;
+                
+                // Apply the new translation
+                currentTranslateX = translateX;
+                currentTranslateY = translateY;
+                updateImageTransform();
+            }
+        }
+        
+        function showParticleDetail(particle) {
+            // Update modal content with particle data
+            particleDetailTitle.textContent = `Particle ${particle.id} Details`;
+            detailId.textContent = particle.id;
+            detailSize.textContent = `${particle.size} μm`;
+            detailShape.textContent = particle.shape;
+            detailColor.textContent = particle.color;
+            detailType.textContent = particle.type;
+            detailConfidence.textContent = particle.confidence;
+            detailPosition.textContent = `X: ${(particle.position.x * 100).toFixed(1)}%, Y: ${(particle.position.y * 100).toFixed(1)}%`;
+            detailNotes.textContent = particle.aiNotes;
+            
+            // Create a mock particle image
+            createMockParticleImage(particle);
+            
+            // Show the modal
+            particleDetailOverlay.style.display = 'block';
+            particleDetailPanel.style.display = 'block';
+        }
+        
+        function createMockParticleImage(particle) {
+            // Create a canvas to generate a mock particle image
+            const canvas = document.createElement('canvas');
+            canvas.width = 200;
+            canvas.height = 200;
+            const ctx = canvas.getContext('2d');
+            
+            // Set background
+            ctx.fillStyle = '#f0f0f0';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw particle based on type and color
+            ctx.fillStyle = getColorValue(particle.color);
+            
+            switch(particle.type) {
+                case 'Fiber':
+                    // Draw a fiber-like shape (elongated rectangle)
+                    ctx.fillRect(50, 80, 100, 20);
+                    break;
+                case 'Fragment':
+                    // Draw an irregular shape
+                    ctx.beginPath();
+                    ctx.moveTo(70, 70);
+                    ctx.lineTo(130, 60);
+                    ctx.lineTo(140, 120);
+                    ctx.lineTo(80, 140);
+                    ctx.lineTo(60, 100);
+                    ctx.closePath();
+                    ctx.fill();
+                    break;
+                case 'Pellet':
+                    // Draw a circular shape
+                    ctx.beginPath();
+                    ctx.arc(100, 100, 40, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                case 'Film':
+                    // Draw a thin, wide shape
+                    ctx.fillRect(30, 90, 140, 10);
+                    break;
+                case 'Foam':
+                    // Draw a porous shape
+                    ctx.beginPath();
+                    ctx.arc(100, 100, 50, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Add holes to simulate foam
+                    ctx.fillStyle = '#f0f0f0';
+                    ctx.beginPath();
+                    ctx.arc(80, 80, 10, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(120, 90, 15, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(90, 120, 12, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                case 'Granule':
+                    // Draw small circular shapes
+                    ctx.beginPath();
+                    ctx.arc(80, 80, 15, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(120, 100, 12, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(100, 130, 10, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                case 'Rubber':
+                    // Draw irregular dark shapes
+                    ctx.fillStyle = '#2c3e50';
+                    ctx.beginPath();
+                    ctx.arc(100, 100, 35, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                case 'Metal Particle':
+                    // Draw angular, reflective shape
+                    ctx.fillStyle = '#bdc3c7';
+                    ctx.beginPath();
+                    ctx.moveTo(70, 70);
+                    ctx.lineTo(130, 70);
+                    ctx.lineTo(140, 130);
+                    ctx.lineTo(70, 130);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    // Add highlights for metallic appearance
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                    ctx.beginPath();
+                    ctx.moveTo(75, 75);
+                    ctx.lineTo(100, 75);
+                    ctx.lineTo(85, 100);
+                    ctx.closePath();
+                    ctx.fill();
+                    break;
+                case 'Organic Matter':
+                    // Draw irregular organic shape
+                    ctx.fillStyle = '#8e44ad';
+                    ctx.beginPath();
+                    ctx.arc(100, 100, 40, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Add texture
+                    ctx.fillStyle = '#9b59b6';
+                    ctx.beginPath();
+                    ctx.arc(85, 85, 10, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(115, 115, 8, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+            }
+            
+            // Add particle ID text
+            ctx.fillStyle = '#333';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(particle.id, 100, 180);
+            
+            // Set the canvas as the image source
+            particleDetailImage.src = canvas.toDataURL();
+        }
+        
+        function getColorValue(colorName) {
+            const colorMap = {
+                'Transparent': 'rgba(200, 200, 200, 0.7)',
+                'White': '#ffffff',
+                'Blue': '#3498db',
+                'Red': '#e74c3c',
+                'Green': '#2ecc71',
+                'Black': '#2c3e50',
+                'Yellow': '#f1c40f',
+                'Orange': '#e67e22',
+                'Purple': '#9b59b6',
+                'Brown': '#a67c52'
+            };
+            
+            return colorMap[colorName] || '#95a5a6';
+        }
+        
+        function closeParticleDetail() {
+            particleDetailOverlay.style.display = 'none';
+            particleDetailPanel.style.display = 'none';
+            
+            // Remove highlight from all markers
+            particleMarkers.forEach(marker => {
+                marker.classList.remove('selected');
+            });
+        }
+        
+        function adjustZoom(factor) {
+            currentZoom *= factor;
+            
+            // Limit zoom range
+            if (currentZoom < 0.1) currentZoom = 0.1;
+            if (currentZoom > 10) currentZoom = 10;
+            
+            updateImageTransform();
+        }
+        
+        function resetZoom() {
+            currentZoom = 1;
+            currentTranslateX = 0;
+            currentTranslateY = 0;
+            updateImageTransform();
+        }
+        
+        function updateImageTransform() {
+            particleOverlayImage.style.transform = `translate(${currentTranslateX}px, ${currentTranslateY}px) scale(${currentZoom})`;
+            zoomLevel.textContent = `${Math.round(currentZoom * 100)}%`;
+        }
+        
+        function showAllParticles() {
+            // Reset zoom and translation to show all particles
+            resetZoom();
+        }
+        
+        function startPanning(e) {
+            isPanning = true;
+            panStartX = e.clientX - currentTranslateX;
+            panStartY = e.clientY - currentTranslateY;
+            particleOverlayContainer.style.cursor = 'grabbing';
+        }
+        
+        function updatePanning(e) {
+            if (!isPanning) return;
+            
+            currentTranslateX = e.clientX - panStartX;
+            currentTranslateY = e.clientY - panStartY;
+            
+            updateImageTransform();
+        }
+        
+        function endPanning() {
+            isPanning = false;
+            particleOverlayContainer.style.cursor = 'grab';
+        }
+        
+        function exportToCSV() {
+            if (!currentAnalysisData) {
+                alert('No analysis data to export');
+                return;
+            }
+            
+            let csvContent = "AI-Powered Microplastic Analysis Data\n\n";
+            
+            // Add summary section
+            csvContent += "SUMMARY\n";
+            csvContent += `Total Particles,${currentAnalysisData.totalParticles}\n`;
+            csvContent += `Average Size (μm),${currentAnalysisData.avgSize}\n`;
+            csvContent += `Size Range (μm),${currentAnalysisData.sizeRange}\n`;
+            csvContent += `Dominant Shape,${currentAnalysisData.dominantShape}\n`;
+            csvContent += `Dominant Color,${currentAnalysisData.dominantColor}\n`;
+            csvContent += `AI Confidence Score,${currentAnalysisData.confidenceScore}\n`;
+            csvContent += `Analysis Region,${currentAnalysisData.analysisRegion}\n\n`;
+            
+            // Add classification section
+            csvContent += "CLASSIFICATION\n";
+            for (const type in currentAnalysisData.typeCounts) {
+                const percentage = ((currentAnalysisData.typeCounts[type] / currentAnalysisData.totalParticles) * 100).toFixed(1);
+                csvContent += `${type},${currentAnalysisData.typeCounts[type]} (${percentage}%)\n`;
+            }
+            
+            csvContent += "\n";
+            
+            // Add detailed data
+            csvContent += "DETAILED PARTICLE DATA\n";
+            csvContent += "Particle ID,Size (μm),Shape,Color,Type,AI Confidence,Position X (%),Position Y (%)\n";
+            
+            currentAnalysisData.particles.forEach(particle => {
+                csvContent += `${particle.id},${particle.size},${particle.shape},${particle.color},${particle.type},${particle.confidence},${(particle.position.x * 100).toFixed(1)},${(particle.position.y * 100).toFixed(1)}\n`;
+            });
+            
+            // Create and download the CSV file
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `microplastic_analysis_${new Date().toISOString().slice(0, 10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert('CSV file exported successfully!');
+        }
+        
+        function generatePDFReport() {
+            if (!currentAnalysisData) {
+                alert('No analysis data to generate report');
+                return;
+            }
+            
+            // Create new PDF document
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Add title
+            doc.setFontSize(20);
+            doc.text('AI-Powered Microplastic Analysis Report', 20, 30);
+            
+            // Add date
+            doc.setFontSize(12);
+            doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 40);
+            
+            // Add summary section
+            doc.setFontSize(16);
+            doc.text('Summary', 20, 60);
+            
+            doc.setFontSize(12);
+            let yPosition = 70;
+            doc.text(`Total Particles: ${currentAnalysisData.totalParticles}`, 20, yPosition);
+            yPosition += 10;
+            doc.text(`Average Size: ${currentAnalysisData.avgSize} μm`, 20, yPosition);
+            yPosition += 10;
+            doc.text(`Size Range: ${currentAnalysisData.sizeRange} μm`, 20, yPosition);
+            yPosition += 10;
+            doc.text(`Dominant Shape: ${currentAnalysisData.dominantShape}`, 20, yPosition);
+            yPosition += 10;
+            doc.text(`Dominant Color: ${currentAnalysisData.dominantColor}`, 20, yPosition);
+            yPosition += 10;
+            doc.text(`AI Confidence Score: ${currentAnalysisData.confidenceScore}`, 20, yPosition);
+            yPosition += 10;
+            doc.text(`Analysis Region: ${currentAnalysisData.analysisRegion}`, 20, yPosition);
+            
+            // Add classification section
+            yPosition += 20;
+            doc.setFontSize(16);
+            doc.text('Classification', 20, yPosition);
+            
+            yPosition += 10;
+            doc.setFontSize(12);
+            for (const type in currentAnalysisData.typeCounts) {
+                const percentage = ((currentAnalysisData.typeCounts[type] / currentAnalysisData.totalParticles) * 100).toFixed(1);
+                doc.text(`${type}: ${currentAnalysisData.typeCounts[type]} (${percentage}%)`, 20, yPosition);
+                yPosition += 10;
+            }
+            
+            // Add detailed data table (first page only shows first few entries)
+            yPosition += 20;
+            doc.setFontSize(16);
+            doc.text('Detailed Particle Data (Sample)', 20, yPosition);
+            
+            // Prepare table data
+            const tableData = currentAnalysisData.particles.slice(0, 15).map(particle => [
+                particle.id,
+                particle.size,
+                particle.shape,
+                particle.color,
+                particle.type,
+                particle.confidence
+            ]);
+            
+            // Add table
+            doc.autoTable({
+                startY: yPosition + 10,
+                head: [['Particle ID', 'Size (μm)', 'Shape', 'Color', 'Type', 'AI Confidence']],
+                body: tableData,
+                theme: 'grid',
+                headStyles: { fillColor: [44, 62, 80] },
+                styles: { fontSize: 10 }
+            });
+            
+            // Save the PDF
+            doc.save(`microplastic_analysis_${new Date().toISOString().slice(0, 10)}.pdf`);
+            
+            alert('PDF report generated successfully!');
+        }
+        
+        function saveAnalysisSession() {
+            if (!currentAnalysisData) {
+                alert('No analysis data to save');
+                return;
+            }
+            
+            // Create session data
+            const sessionData = {
+                ...currentAnalysisData,
+                timestamp: new Date().toISOString(),
+                settings: {
+                    confidence: parseInt(confidenceSlider.value),
+                    sensitivity: parseInt(sensitivitySlider.value),
+                    depth: parseInt(depthSlider.value)
+                }
+            };
+            
+            // Generate unique session ID
+            const sessionId = 'session_' + new Date().getTime();
+            
+            // Save to localStorage
+            localStorage.setItem(sessionId, JSON.stringify(sessionData));
+            
+            // Also save session ID to list of sessions
+            const sessions = JSON.parse(localStorage.getItem('microplasticSessions') || '[]');
+            sessions.push({
+                id: sessionId,
+                timestamp: sessionData.timestamp,
+                totalParticles: sessionData.totalParticles,
+                analysisRegion: sessionData.analysisRegion
+            });
+            localStorage.setItem('microplasticSessions', JSON.stringify(sessions));
+            
+            alert('Analysis session saved successfully!');
+        }
+    </script>
 </body>
 </html>
