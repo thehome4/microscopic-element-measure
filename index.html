@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Microplastic Quantification | Thesis Research</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Advanced Microplastic Quantification</h1>
+            <p class="subtitle">High-precision analysis of microplastic particles from microscopic images</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="card">
+            <h2 class="card-title">Upload Microscopic Image</h2>
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📁</div>
+                <h3>Drag & Drop your microscopic image here</h3>
+                <p>Supported formats: JPG, PNG, TIFF, BMP</p>
+                <p class="subtitle">High-resolution images recommended for accurate analysis</p>
+                <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                <button class="btn btn-primary" style="margin-top: 1rem;" onclick="document.getElementById('fileInput').click()">Select Image</button>
+            </div>
+            <div id="imagePreviewContainer" style="display: none;">
+                <img id="imagePreview" class="image-preview" src="" alt="Preview">
+                <div style="text-align: center; margin-top: 1rem;">
+                    <button class="btn btn-success btn-lg" id="analyzeBtn">Analyze Microplastics</button>
+                    <button class="btn btn-warning" id="changeImageBtn">Change Image</button>
+                </div>
+                
+                <div class="advanced-options">
+                    <h3>Advanced Analysis Options</h3>
+                    <div class="option-group">
+                        <label class="option-label">Scanning Intensity</label>
+                        <div class="slider-container">
+                            <span>Low</span>
+                            <input type="range" id="intensitySlider" min="1" max="10" value="7">
+                            <span>High</span>
+                            <span class="slider-value" id="intensityValue">7</span>
+                        </div>
+                        <small>Higher intensity provides more accurate results but takes longer</small>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label class="option-label">Detection Sensitivity</label>
+                        <div class="slider-container">
+                            <span>Low</span>
+                            <input type="range" id="sensitivitySlider" min="1" max="10" value="8">
+                            <span>High</span>
+                            <span class="slider-value" id="sensitivityValue">8</span>
+                        </div>
+                        <small>Higher sensitivity detects smaller particles but may increase false positives</small>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label class="option-label">Analysis Depth</label>
+                        <div class="slider-container">
+                            <span>Basic</span>
+                            <input type="range" id="depthSlider" min="1" max="5" value="3">
+                            <span>Deep</span>
+                            <span class="slider-value" id="depthValue">3</span>
+                        </div>
+                        <small>Deeper analysis provides more detailed particle characterization</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="analysis-section" id="analysisSection">
+            <div class="card">
+                <h2 class="card-title">Deep Scan Analysis Progress</h2>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <div class="progress-text" id="progressText">Initializing analysis...</div>
+                
+                <div class="scan-details">
+                    <div class="scan-step" id="step1">
+                        <span class="step-icon">⏳</span>
+                        <span>Image preprocessing and enhancement</span>
+                    </div>
+                    <div class="scan-step" id="step2">
+                        <span class="step-icon">⏳</span>
+                        <span>Noise reduction and background subtraction</span>
+                    </div>
+                    <div class="scan-step" id="step3">
+                        <span class="step-icon">⏳</span>
+                        <span>Particle detection and segmentation</span>
+                    </div>
+                    <div class="scan-step" id="step4">
+                        <span class="step-icon">⏳</span>
+                        <span>Size and shape measurement</span>
+                    </div>
+                    <div class="scan-step" id="step5">
+                        <span class="step-icon">⏳</span>
+                        <span>Color analysis and classification</span>
+                    </div>
+                    <div class="scan-step" id="step6">
+                        <span class="step-icon">⏳</span>
+                        <span>Microplastic type identification</span>
+                    </div>
+                    <div class="scan-step" id="step7">
+                        <span class="step-icon">⏳</span>
+                        <span>Statistical analysis and validation</span>
+                    </div>
+                </div>
+                
+                <div class="loading" id="loadingIndicator">
+                    <div class="spinner"></div>
+                    <p>Performing deep scan analysis. This may take several minutes depending on image complexity and settings.</p>
+                    <p><strong>Note:</strong> We prioritize accuracy over speed for your thesis research.</p>
+                </div>
+            </div>
+            
+            <div class="card" id="resultsCard" style="display: none;">
+                <h2 class="card-title">Comprehensive Analysis Results</h2>
+                
+                <div class="results-grid">
+                    <div class="result-card">
+                        <div class="result-title">Total Particles</div>
+                        <div class="result-value" id="totalParticles">0</div>
+                        <div class="result-unit">microplastic particles</div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="result-title">Average Size</div>
+                        <div class="result-value" id="avgSize">0</div>
+                        <div class="result-unit">micrometers</div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="result-title">Size Range</div>
+                        <div class="result-value" id="sizeRange">0-0</div>
+                        <div class="result-unit">micrometers</div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="result-title">Dominant Shape</div>
+                        <div class="result-value" id="dominantShape">-</div>
+                        <div class="result-unit">most frequent</div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="result-title">Dominant Color</div>
+                        <div class="result-value" id="dominantColor">-</div>
+                        <div class="result-unit">most frequent</div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <div class="result-title">Confidence Score</div>
+                        <div class="result-value" id="confidenceScore">0%</div>
+                        <div class="result-unit">analysis accuracy</div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <h3>Particle Classification</h3>
+                    <div class="classification-results">
+                        <div class="classification-item">
+                            <span>Fibers</span>
+                            <span><span class="particle-count" id="fiberCount">0</span> (<span class="particle-percentage" id="fiberPercentage">0%</span>)</span>
+                        </div>
+                        <div class="classification-item">
+                            <span>Fragments</span>
+                            <span><span class="particle-count" id="fragmentCount">0</span> (<span class="particle-percentage" id="fragmentPercentage">0%</span>)</span>
+                        </div>
+                        <div class="classification-item">
+                            <span>Pellets</span>
+                            <span><span class="particle-count" id="pelletCount">0</span> (<span class="particle-percentage" id="pelletPercentage">0%</span>)</span>
+                        </div>
+                        <div class="classification-item">
+                            <span>Films</span>
+                            <span><span class="particle-count" id="filmCount">0</span> (<span class="particle-percentage" id="filmPercentage">0%</span>)</span>
+                        </div>
+                        <div class="classification-item">
+                            <span>Foams</span>
+                            <span><span class="particle-count" id="foamCount">0</span> (<span class="particle-percentage" id="foamPercentage">0%</span>)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="detailed-results">
+                    <h3>Detailed Particle Data</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Particle ID</th>
+                                <th>Size (μm)</th>
+                                <th>Shape</th>
+                                <th>Color</th>
+                                <th>Type</th>
+                                <th>Confidence</th>
+                            </tr>
+                        </thead>
+                        <tbody id="particleTable">
+                            <!-- Table rows will be inserted here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="export-section">
+                    <button class="btn btn-primary" id="exportCSVBtn">Export as CSV</button>
+                    <button class="btn btn-success" id="exportPDFBtn">Generate Report (PDF)</button>
+                    <button class="btn btn-warning" id="saveSessionBtn">Save Analysis Session</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>Advanced Microplastic Quantification Tool | Designed for Thesis Research | Accuracy-Focused Deep Scan Analysis</p>
+            <p>Note: This tool prioritizes data accuracy with comprehensive particle characterization.</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
